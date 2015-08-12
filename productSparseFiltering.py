@@ -58,9 +58,9 @@ def sparseProductFiltering(N, X, Y):
         # Backprop through each feedforward step
         DeltaW = l2rowg(NFs.T, Fhat, L2Fn, np.ones(Fhat.shape))
         DeltaW = l2rowg(Fs, NFs, L2Fs, DeltaW.T)
-        DeltaW1 = (DeltaW*(F/Fs)).dot(F2*X.T)
-        DeltaW2 = (DeltaW*(F/Fs)).dot(F1*Y.T)
-        return Fhat.sum(), np.concatenate(DeltaW1.flatten(), DeltaW2.flatten())
+        DeltaW1 = (DeltaW*F2*(F/Fs)).dot(X.T)
+        DeltaW2 = (DeltaW*F1*(F/Fs)).dot(Y.T)
+        return Fhat.sum(), np.concatenate((DeltaW1.flatten(), DeltaW2.flatten()))
 
     # Actual optimization
     w, g = objFun(optW)
