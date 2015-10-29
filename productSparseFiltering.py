@@ -60,7 +60,7 @@ def sparseProductFiltering(N, X, Y):
         DeltaW = l2rowg(Fs, NFs, L2Fs, DeltaW.T)
         DeltaW1 = (DeltaW*F2*(F/Fs)).dot(X.T)
         DeltaW2 = (DeltaW*F1*(F/Fs)).dot(Y.T)
-        return Fhat.sum(), np.concatenate((DeltaW1.flatten(), DeltaW2.flatten()))
+        return Fhat.sum(), np.hstack([DeltaW1, DeltaW2]).flatten()
 
     # Actual optimization
     w, g = objFun(optW)
