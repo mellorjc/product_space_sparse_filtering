@@ -48,18 +48,21 @@ def sparseProductFiltering(N, X, Y):
     def objFun(W):
         # Feed forward
         W = W.reshape((N, X.shape[0] + Y.shape[0]))
-        F1 = (W[:, :X.shape[0]].dot(X))
-        F2 = (W[:, X.shape[0]:].dot(Y))
+        # F1 = (W[:, :X.shape[0]].dot(X))
+        # F2 = (W[:, X.shape[0]:].dot(Y))
+        F1 = (X.T.dot(W[:, :X.shape[0]].T)).T
+        F2 = (Y.T.dot(W[:, X.shape[0]:].T)).T
         F = F1*F2
-        Fs = np.sqrt(F**2 + 1e-8)
-        NFs, L2Fs = l2row(Fs)
+        Fs = np.sqrt(F**2 + 1e-8)    NFs, L2Fs = l2row(Fs)
         Fhat, L2Fn = l2row(NFs.T)
         # Compute objective function
         # Backprop through each feedforward step
         DeltaW = l2rowg(NFs.T, Fhat, L2Fn, np.ones(Fhat.shape))
         DeltaW = l2rowg(Fs, NFs, L2Fs, DeltaW.T)
-        DeltaW1 = (DeltaW*F2*(F/Fs)).dot(X.T)
-        DeltaW2 = (DeltaW*F1*(F/Fs)).dot(Y.T)
+        # DeltaW1 = (DeltaW*F2*(F/Fs)).dot(X.T)
+        # DeltaW2 = (DeltaW*F1*(F/Fs)).dot(Y.T)
+        DeltaW1 = X.dot((DeltaW*F2*(F/Fs)).T).T
+        DeltaW2 = Y.dot((DeltaW*F1*(F/Fs)).T).T
         return Fhat.sum(), np.hstack([DeltaW1, DeltaW2]).flatten()
 
     # Actual optimization
@@ -70,7 +73,8 @@ def sparseProductFiltering(N, X, Y):
 
 def feedForwardPSF(W, X, Y):
     "Feed-forward"
-    F = (W[:, :X.shape[0]].dot(X))*(W[:, Y.shape[0]:].dot(Y))
+    # F = (W[:, :X.shape[0]].dot(X))*(W[:, Y.shape[0]:].dot(Y))
+    F = (X.T.dot(W[:, :X.shape[0]].T))*(Y.T.dot(W[:, Y.shape[0]:].T))
     Fs = np.sqrt(F**2 + 1e-8)
     NFs = l2row(Fs)[0]
     return l2row(NFs.T)[0].T
